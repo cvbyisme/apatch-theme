@@ -183,11 +183,11 @@ private fun presetColorScheme(presetKey: String, darkTheme: Boolean): ColorSchem
 }
 
 /** 启用壁纸时，让背景/表面半透明，使壁纸从下层透出。 */
-private fun ColorScheme.withWallpaperAlpha(alpha: Float = 0.88f): ColorScheme {
+private fun ColorScheme.withWallpaperAlpha(): ColorScheme {
     return copy(
-        background = background.copy(alpha = alpha),
-        surface = surface.copy(alpha = alpha),
-        surfaceVariant = surfaceVariant.copy(alpha = alpha),
+        background = background.copy(alpha = 0.45f),
+        surface = surface.copy(alpha = 0.82f),
+        surfaceVariant = surfaceVariant.copy(alpha = 0.78f),
     )
 }
 
