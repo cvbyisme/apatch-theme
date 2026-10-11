@@ -31,6 +31,8 @@ object ThemeStore {
     private const val KEY_WALL_BLUR = "theme.wallpaper_blur"
     private const val KEY_WALL_SCRIM = "theme.wallpaper_scrim"
     private const val KEY_WALL_DARK_SCRIM = "theme.wallpaper_dark_scrim"
+    private const val KEY_BG_ALPHA = "theme.background_alpha"
+    private const val KEY_SURFACE_ALPHA = "theme.surface_alpha"
     private const val KEY_ICON_SHAPE = "theme.icon_shape"
     private const val KEY_ICON_TINT = "theme.icon_tint"
     private const val KEY_FONT_PATH = "theme.font_path"
@@ -59,6 +61,8 @@ object ThemeStore {
             wallpaperBlur = p.getFloat(KEY_WALL_BLUR, 0f),
             wallpaperScrim = p.getFloat(KEY_WALL_SCRIM, 0.22f),
             wallpaperDarkScrim = p.getFloat(KEY_WALL_DARK_SCRIM, 0.45f),
+            backgroundAlpha = p.getFloat(KEY_BG_ALPHA, 0.45f),
+            surfaceAlpha = p.getFloat(KEY_SURFACE_ALPHA, 0.85f),
             iconShape = enumOrNull<IconShape>(p.getString(KEY_ICON_SHAPE, null)) ?: IconShape.ROUND,
             iconTint = enumOrNull<IconTint>(p.getString(KEY_ICON_TINT, null)) ?: IconTint.THEME,
             fontPath = p.getString(KEY_FONT_PATH, null),
@@ -81,6 +85,8 @@ object ThemeStore {
             putFloat(KEY_WALL_BLUR, config.wallpaperBlur)
             putFloat(KEY_WALL_SCRIM, config.wallpaperScrim)
             putFloat(KEY_WALL_DARK_SCRIM, config.wallpaperDarkScrim)
+            putFloat(KEY_BG_ALPHA, config.backgroundAlpha)
+            putFloat(KEY_SURFACE_ALPHA, config.surfaceAlpha)
             putString(KEY_ICON_SHAPE, config.iconShape.name)
             putString(KEY_ICON_TINT, config.iconTint.name)
             putString(KEY_FONT_PATH, config.fontPath)

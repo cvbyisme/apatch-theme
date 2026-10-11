@@ -61,6 +61,12 @@ private fun SystemBarStyle(
 
 val refreshTheme = MutableLiveData(false)
 
+/**
+ * 主题自定义对话框拖动滑块时的实时预览（不落盘）。
+ * null = 使用 [ThemeStore] 中已保存的配置。
+ */
+val themePreview = mutableStateOf<ThemeConfig?>(null)
+
 @Composable
 fun APatchTheme(
     content: @Composable () -> Unit
@@ -75,30 +81,33 @@ fun APatchTheme(
         refreshTheme.postValue(false)
     }
 
-    val darkTheme = when (config.darkMode) {
+    // 滑块拖动中用预览配置，松手后回落到已保存配置
+    val effective = themePreview.value ?: config
+
+    val darkTheme = when (effective.darkMode) {
         DarkMode.FOLLOW_SYSTEM -> isSystemInDarkTheme()
         DarkMode.DARK -> true
         DarkMode.LIGHT -> false
     }
 
-    val targetScheme = resolveColorScheme(config, darkTheme, context)
+    val targetScheme = resolveColorScheme(effective, darkTheme, context)
     val schemeWithWallpaper =
-        if (config.hasWallpaper) targetScheme.withWallpaperAlpha() else targetScheme
+        if (effective.hasWallpaper) targetScheme.withWallpaperAlpha(effective) else targetScheme
     // 华丽 MD3 动效：主题切换时关键色平滑过渡
     val colorScheme = animateColorScheme(schemeWithWallpaper)
-    val typography = appTypography(config)
+    val typography = appTypography(effective)
 
     SystemBarStyle(darkMode = darkTheme)
 
     Box(Modifier.fillMaxSize()) {
-        WallpaperLayer(config, darkTheme)
+        WallpaperLayer(effective, darkTheme)
         MaterialTheme(
             colorScheme = colorScheme,
             typography = typography,
             content = {
                 MonetColorsProvider.UpdateCss()
                 CompositionLocalProvider(
-                    LocalIconStyle provides IconStyleConfig(config.iconShape, config.iconTint)
+                    LocalIconStyle provides IconStyleConfig(effective.iconShape, effective.iconTint)
                 ) {
                     content()
                 }
@@ -182,12 +191,28 @@ private fun presetColorScheme(presetKey: String, darkTheme: Boolean): ColorSchem
     }
 }
 
-/** 启用壁纸时，让背景/表面半透明，使壁纸从下层透出。 */
-private fun ColorScheme.withWallpaperAlpha(): ColorScheme {
+/**
+ * 启用壁纸时，让背景与整个 surface 家族半透明，使壁纸从下层透出。
+ *
+ * 注意：对话框、底部面板（发送日志）、语言/主题面板、卡片、导航栏用的都是
+ * surfaceContainer* / surfaceBright|Dim 令牌——只改 background/surface/surfaceVariant
+ * 会让这些面板保持全不透明，同一屏里「有的透、有的不透」，看似透明度出错。
+ * 这里统一按 [ThemeConfig.backgroundAlpha] / [ThemeConfig.surfaceAlpha] 处理。
+ */
+private fun ColorScheme.withWallpaperAlpha(config: ThemeConfig): ColorScheme {
+    val bg = config.backgroundAlpha.coerceIn(0f, 1f)
+    val sf = config.surfaceAlpha.coerceIn(0f, 1f)
     return copy(
-        background = background.copy(alpha = 0.45f),
-        surface = surface.copy(alpha = 0.82f),
-        surfaceVariant = surfaceVariant.copy(alpha = 0.78f),
+        background = background.copy(alpha = bg),
+        surface = surface.copy(alpha = sf),
+        surfaceVariant = surfaceVariant.copy(alpha = sf),
+        surfaceBright = surfaceBright.copy(alpha = sf),
+        surfaceDim = surfaceDim.copy(alpha = sf),
+        surfaceContainerLowest = surfaceContainerLowest.copy(alpha = sf),
+        surfaceContainerLow = surfaceContainerLow.copy(alpha = sf),
+        surfaceContainer = surfaceContainer.copy(alpha = sf),
+        surfaceContainerHigh = surfaceContainerHigh.copy(alpha = sf),
+        surfaceContainerHighest = surfaceContainerHighest.copy(alpha = sf),
     )
 }
 

@@ -57,6 +57,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -103,6 +104,7 @@ import me.bmax.apatch.ui.theme.IconShape
 import me.bmax.apatch.ui.theme.IconTint
 import me.bmax.apatch.ui.theme.ThemeConfig
 import me.bmax.apatch.ui.theme.ThemeStore
+import me.bmax.apatch.ui.theme.themePreview
 import me.bmax.apatch.ui.component.rememberLoadingDialog
 import me.bmax.apatch.ui.theme.refreshTheme
 import me.bmax.apatch.util.getBugreportFile
@@ -118,6 +120,7 @@ import me.bmax.apatch.util.ui.NavigationBarsSpacer
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.math.roundToInt
 
 @Destination<RootGraph>
 @Composable
@@ -669,7 +672,23 @@ fun ThemeSettingsDialog(showDialog: MutableState<Boolean>) {
 
     fun persist() {
         ThemeStore.save(config)
+        themePreview.value = null
         refreshTheme.value = true
+    }
+
+    /** 拖动过程中只做实时预览，不写盘 */
+    fun preview() {
+        themePreview.value = config
+    }
+
+    fun applyAlpha(background: Float, surface: Float) {
+        config = config.copy(backgroundAlpha = background, surfaceAlpha = surface)
+        persist()
+    }
+
+    // 对话框被销毁时清掉未落盘的预览，避免主题卡在预览状态
+    DisposableEffect(Unit) {
+        onDispose { themePreview.value = null }
     }
 
     val wallpaperPicker = rememberLauncherForActivityResult(
@@ -773,14 +792,79 @@ fun ThemeSettingsDialog(showDialog: MutableState<Boolean>) {
                         },
                     )
                 }
-                Text("模糊", style = MaterialTheme.typography.bodyMedium)
-                Slider(
-                    value = config.wallpaperBlur,
-                    onValueChange = { config = config.copy(wallpaperBlur = it) },
-                    onValueChangeFinished = { persist() },
-                    valueRange = 0f..48f,
-                )
+                if (config.hasWallpaper) {
+                    SettingSlider(
+                        title = "壁纸模糊",
+                        value = config.wallpaperBlur,
+                        valueRange = 0f..48f,
+                        percent = false,
+                        onChange = {
+                            config = config.copy(wallpaperBlur = it)
+                            preview()
+                        },
+                        onCommit = { persist() },
+                    )
+                    SettingSlider(
+                        title = "浅色遮罩",
+                        value = config.wallpaperScrim,
+                        valueRange = 0f..0.8f,
+                        onChange = {
+                            config = config.copy(wallpaperScrim = it)
+                            preview()
+                        },
+                        onCommit = { persist() },
+                    )
+                    SettingSlider(
+                        title = "深色遮罩",
+                        value = config.wallpaperDarkScrim,
+                        valueRange = 0f..0.9f,
+                        onChange = {
+                            config = config.copy(wallpaperDarkScrim = it)
+                            preview()
+                        },
+                        onCommit = { persist() },
+                    )
+                }
 
+                sectionTitle("界面透明度")
+                if (config.hasWallpaper) {
+                    Text(
+                        "背景不透明度决定壁纸透出多少；界面不透明度同时作用于对话框、底部面板与卡片。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                    SettingSlider(
+                        title = "背景不透明度",
+                        value = config.backgroundAlpha,
+                        valueRange = 0.15f..1f,
+                        onChange = {
+                            config = config.copy(backgroundAlpha = it)
+                            preview()
+                        },
+                        onCommit = { persist() },
+                    )
+                    SettingSlider(
+                        title = "界面不透明度",
+                        value = config.surfaceAlpha,
+                        valueRange = 0.3f..1f,
+                        onChange = {
+                            config = config.copy(surfaceAlpha = it)
+                            preview()
+                        },
+                        onCommit = { persist() },
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        TextButton(onClick = { applyAlpha(1f, 1f) }) { Text("不透明") }
+                        TextButton(onClick = { applyAlpha(0.45f, 0.85f) }) { Text("均衡") }
+                        TextButton(onClick = { applyAlpha(0.25f, 0.6f) }) { Text("通透") }
+                    }
+                } else {
+                    Text(
+                        "启用壁纸后可调节壁纸模糊、遮罩与界面透明度。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                }
                 sectionTitle("字体")
                 ListItem(
                     headlineContent = { Text("导入字体 (TTF/OTF)") },
@@ -796,14 +880,16 @@ fun ThemeSettingsDialog(showDialog: MutableState<Boolean>) {
                         },
                     )
                 }
-                Text("字号缩放", style = MaterialTheme.typography.bodyMedium)
-                Slider(
+                SettingSlider(
+                    title = "字号缩放",
                     value = config.fontScale,
-                    onValueChange = { config = config.copy(fontScale = it) },
-                    onValueChangeFinished = { persist() },
                     valueRange = 0.8f..1.6f,
+                    onChange = {
+                        config = config.copy(fontScale = it)
+                        preview()
+                    },
+                    onCommit = { persist() },
                 )
-
                 sectionTitle("图标形状")
                 RadioItem("圆角", config.iconShape == IconShape.ROUND) {
                     config = config.copy(iconShape = IconShape.ROUND)
@@ -872,6 +958,48 @@ private fun sectionTitle(title: String) {
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(top = 16.dp, bottom = 4.dp),
     )
+}
+
+/** 带标题与数值显示的滑块；percent=true 时按百分比展示。 */
+@Composable
+private fun SettingSlider(
+    title: String,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    enabled: Boolean = true,
+    percent: Boolean = true,
+    onChange: (Float) -> Unit,
+    onCommit: () -> Unit,
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface
+                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+            )
+            Text(
+                text = if (percent) "${(value * 100).roundToInt()}%" else "${value.roundToInt()}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.outline,
+            )
+        }
+        Slider(
+            value = value,
+            onValueChange = onChange,
+            onValueChangeFinished = onCommit,
+            valueRange = valueRange,
+            enabled = enabled,
+        )
+    }
 }
 
 private val seedColors = listOf(

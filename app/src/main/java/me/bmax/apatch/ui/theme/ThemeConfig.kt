@@ -29,6 +29,11 @@ data class ThemeConfig(
     val wallpaperBlur: Float = 0f,
     val wallpaperScrim: Float = 0.22f,
     val wallpaperDarkScrim: Float = 0.45f,
+    // 界面透明度：仅在启用壁纸时生效，1.0 = 完全不透明。
+    // 所有 surface 系列令牌（含对话框/底栏/卡片用的 surfaceContainer*）统一跟随，
+    // 避免「背景透、面板不透」的不一致。
+    val backgroundAlpha: Float = 0.45f,
+    val surfaceAlpha: Float = 0.85f,
     // 图标
     val iconShape: IconShape = IconShape.ROUND,
     val iconTint: IconTint = IconTint.THEME,
