@@ -794,6 +794,16 @@ fun ThemeSettingsDialog(showDialog: MutableState<Boolean>) {
                 }
                 if (config.hasWallpaper) {
                     SettingSlider(
+                        title = "壁纸不透明度",
+                        value = config.wallpaperAlpha,
+                        valueRange = 0.1f..1f,
+                        onChange = {
+                            config = config.copy(wallpaperAlpha = it)
+                            preview()
+                        },
+                        onCommit = { persist() },
+                    )
+                    SettingSlider(
                         title = "壁纸模糊",
                         value = config.wallpaperBlur,
                         valueRange = 0f..48f,
@@ -829,7 +839,7 @@ fun ThemeSettingsDialog(showDialog: MutableState<Boolean>) {
                 sectionTitle("界面透明度")
                 if (config.hasWallpaper) {
                     Text(
-                        "背景不透明度决定壁纸透出多少；界面不透明度同时作用于对话框、底部面板与卡片。",
+                        "背景不透明度越小，壁纸越能透出；界面不透明度同时作用于对话框、底部面板与卡片。壁纸本身的浓淡在「壁纸」分区调节。",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline,
                     )

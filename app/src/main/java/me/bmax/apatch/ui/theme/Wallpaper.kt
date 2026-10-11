@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -28,6 +29,7 @@ fun WallpaperLayer(config: ThemeConfig, darkTheme: Boolean, modifier: Modifier =
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxSize()
+                .alpha(config.wallpaperAlpha.coerceIn(0f, 1f))
                 .then(if (config.wallpaperBlur > 0f) Modifier.blur(config.wallpaperBlur.dp) else Modifier),
         )
         val scrim = if (darkTheme) config.wallpaperDarkScrim else config.wallpaperScrim
