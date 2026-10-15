@@ -1,15 +1,14 @@
 <div align="center">
-<a href="https://github.com/bmax121/APatch/releases/latest"><img src="https://images.weserv.nl/?url=https://raw.githubusercontent.com/bmax121/APatch/main/app/src/main/ic_launcher-playstore.png&mask=circle" style="width: 128px;" alt="logo"></a>
+<a href="https://github.com/bmax121/APatch"><img src="https://images.weserv.nl/?url=https://raw.githubusercontent.com/bmax121/APatch/main/app/src/main/ic_launcher-playstore.png&mask=circle" style="width: 128px;" alt="logo"></a>
 
-<h1 align="center">APatch</h1>
+<h1 align="center">APatch Theme</h1>
 
-[![Latest Release](https://img.shields.io/github/v/release/bmax121/APatch?label=Release&logo=github)](https://github.com/bmax121/APatch/releases/latest)
-[![Nightly Release](https://img.shields.io/badge/Nightly%20release-gray?logo=hackthebox&logoColor=fff)](https://nightly.link/bmax121/APatch/workflows/build/main/APatch-Release)
-[![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/APatchGroup)
-[![GitHub License](https://img.shields.io/github/license/bmax121/APatch?logo=gnu)](/LICENSE)
+**APatch 管理器的主题增强版**：壁纸背景、图标形状、字体导入、界面透明度与 MD3 动效自定义，基于 [bmax121/APatch](https://github.com/bmax121/APatch)（GPL-3.0）。
+
+[![Latest Release](https://img.shields.io/github/v/release/cvbyisme/apatch-theme?label=Release&logo=github)](https://github.com/cvbyisme/apatch-theme/releases/latest)
+[![GitHub License](https://img.shields.io/github/license/cvbyisme/apatch-theme?logo=gnu)](/LICENSE)
 
 </div>
-
 The patching of Android kernel and Android system.
 
 - A new kernel-based root solution for Android devices.
@@ -18,7 +17,18 @@ The patching of Android kernel and Android system.
 - APatch relies on [KernelPatch](https://github.com/bmax121/KernelPatch/).
 - The APatch UI and the APModule source code have been derived and modified from [KernelSU](https://github.com/tiann/KernelSU).
 
-The only way to download the latest APK is from the [Releases Section](https://github.com/bmax121/APatch/releases/latest).
+The only way to download the latest **theme** APK is from the [Releases Section](https://github.com/cvbyisme/apatch-theme/releases/latest). 官方原版请到 [bmax121/APatch](https://github.com/bmax121/APatch/releases/latest) 下载。
+
+## 主题增强（本仓库改动）
+
+- **壁纸背景**：任意图片作全局底图，可调模糊（Android 12+）与深浅遮罩，保证文字可读。
+- **取色**：可手动选种子色，也能直接从壁纸提取主色。
+- **图标**：图标形状与着色风格可换。
+- **字体**：导入 TTF/OTF，支持字号缩放。
+- **界面透明度**：`background` / `surface` 家族（含对话框、底部面板、卡片、导航栏）两条滑块 + 不透明/均衡/通透预设。
+- **动效**：MD3 颜色弹簧过渡。
+
+安装包见 [Releases](https://github.com/cvbyisme/apatch-theme/releases)（当前为 debug 签名，跨版本升级需先卸载）。
 
 ## Supported Versions
 
@@ -75,3 +85,5 @@ Furthermore, we need more volunteers to [contribute to the documentation](https:
 ## License
 
 APatch is licensed under the GNU General Public License v3 [GPL-3](http://www.gnu.org/copyleft/gpl.html).
+
+本仓库的主题层改动同样以 **GPL-3.0** 发布。
