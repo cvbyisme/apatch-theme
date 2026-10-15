@@ -9,6 +9,7 @@
 [![GitHub License](https://img.shields.io/github/license/cvbyisme/apatch-theme?logo=gnu)](/LICENSE)
 
 </div>
+
 The patching of Android kernel and Android system.
 
 - A new kernel-based root solution for Android devices.
